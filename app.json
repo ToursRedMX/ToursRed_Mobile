@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "toursred",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.toursred.app",
