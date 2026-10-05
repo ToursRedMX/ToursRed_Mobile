@@ -7,7 +7,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { colors } from '@/constants/theme';
 
 function RootNavigator() {
-  const { session, initializing } = useAuth();
+  const { session, initializing, mfaRequired } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -15,12 +15,12 @@ function RootNavigator() {
     if (initializing) return;
     const inAuthGroup = segments[0] === '(auth)';
 
-    if (!session && !inAuthGroup) {
+    if ((!session || mfaRequired) && !inAuthGroup) {
       router.replace('/(auth)/login');
-    } else if (session && inAuthGroup) {
+    } else if (session && !mfaRequired && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [session, initializing, segments, router]);
+  }, [session, mfaRequired, initializing, segments, router]);
 
   if (initializing) {
     return (

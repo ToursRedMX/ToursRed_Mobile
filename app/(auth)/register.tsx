@@ -4,16 +4,19 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { colors, spacing, typography, radius } from '@/constants/theme';
 import { Mail, Lock, User as UserIcon, ArrowRight, Eye, EyeOff } from 'lucide-react-native';
+import { CaptchaWidget } from '@/components/CaptchaWidget';
 
 export default function RegisterScreen() {
   const router = useRouter();
   const { signUp, loading } = useAuth();
+  const [captchaToken, setCaptchaToken] = useState<string | undefined>();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const captchaSiteKey = process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY;
 
   const handleRegister = async () => {
     setLocalError(null);
@@ -29,7 +32,7 @@ export default function RegisterScreen() {
       setLocalError('La contrasena debe tener al menos 6 caracteres');
       return;
     }
-    const { error } = await signUp(email.trim().toLowerCase(), password, firstName.trim(), lastName.trim());
+    const { error } = await signUp(email.trim().toLowerCase(), password, firstName.trim(), lastName.trim(), captchaToken);
     if (error) {
       setLocalError(error);
     }
@@ -108,6 +111,13 @@ export default function RegisterScreen() {
             )}
           </TouchableOpacity>
         </View>
+
+        <CaptchaWidget
+          siteKey={captchaSiteKey}
+          onToken={setCaptchaToken}
+          onExpired={() => setCaptchaToken(undefined)}
+          onError={() => setLocalError('No pudimos cargar la verificación de seguridad.')}
+        />
 
         <TouchableOpacity
           style={[styles.registerButton, loading && styles.registerButtonDisabled]}
